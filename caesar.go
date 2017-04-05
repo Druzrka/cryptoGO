@@ -2,37 +2,79 @@ package main
 
 import (
 	"fmt"
+	"bufio"
+	"os"
+)
+const (
+	ALPHABETICAL_LENGTH = 26
+
+	ASCII_OF_A = 65
+	ASCII_OF_Z = 90
+
+	ASCII_OF_a = 97
+	ASCII_OF_z = 122
 )
 
-func isBig(letter byte) bool{
-	if letter > 64 && letter < 91 {
+func checkShiftNumber(shiftNumber rune) bool {
+	// если в руну приходит буква, то она становиться нулем
+	if shiftNumber != 0 {
 		return true
 	}
 	return false
 }
 
-func isLittle(letter byte) bool{
-	if letter > 96 && letter < 123 {
+func getText()string {
+	fmt.Print("Enter your text: ")
+	text := bufio.NewScanner(os.Stdin)
+	text.Scan()
+	return text.Text()
+}
+
+func getShiftNumber() byte {
+	var number byte
+	fmt.Print("Enter shift number: ")
+	fmt.Scanf("%b", &number)
+	if checkShiftNumber(rune(number)) {
+		return number
+	}
+	fmt.Println("ERROR! You entered letter")
+	return 0
+}
+
+func LetterIsBig(letter byte) bool{
+	if letter >= ASCII_OF_A && letter <= ASCII_OF_Z {
 		return true
 	}
 	return false
 }
 
-func cipher(shiftNumber byte, text string) {
+func LetterIsLittle(letter byte) bool{
+	if letter >= ASCII_OF_a && letter <= ASCII_OF_z {
+		return true
+	}
+	return false
+}
+
+func letterEncryption(letter, shiftNumber byte) string {
+	if LetterIsBig(letter) {
+		return string(ASCII_OF_A + (letter - ASCII_OF_A + shiftNumber) % ALPHABETICAL_LENGTH)
+	} else if LetterIsLittle(letter) {
+		return string(ASCII_OF_a + (letter - ASCII_OF_a + shiftNumber) % ALPHABETICAL_LENGTH)
+	}
+	return string(letter)
+}
+
+func textEncryption(shiftNumber byte, text string) string {
 	length := len(text)
+	encryptedText := ""
 	for i := 0; i < length; i++ {
-		if isBig(text[i]){
-			fmt.Printf("%c",'A' + (text[i] - 'A' + shiftNumber) % 26)
-		} else if isLittle(text[i]) {
-			fmt.Printf("%c",'a' + (text[i] - 'a' + shiftNumber) % 26)
-		} else {
-			fmt.Printf("%c", text[i])
-		}
+			encryptedText += letterEncryption(text[i], shiftNumber)
 	}
+	return encryptedText
 }
 
 func main() {
-	var shiftNumber byte = 4
-	var text string = "HELLO my dear friend!"
-	cipher(shiftNumber, text)
+	text := getText()
+	shiftNumber := getShiftNumber()
+	fmt.Printf("%s",textEncryption(shiftNumber, text))
 }
